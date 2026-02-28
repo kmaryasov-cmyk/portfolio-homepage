@@ -5,7 +5,7 @@ segment_source_task:
     {source_text}
 
     Output STRICT JSON only (no markdown, no comments) matching this schema:
-    {"segments":[{"segment_id":"S1","text":"...","lang":"ru|en|mix|other","flags":["ocr|broken|placeholder"]}]}
+    {{"segments":[{{"segment_id":"S1","text":"...","lang":"ru|en|mix|other","flags":["ocr|broken|placeholder"]}}]}}
   expected_output: >
     A JSON object with an array "segments" as specified.
   agent: facts_extractor
@@ -20,11 +20,11 @@ extract_claims_task:
     Allowed status values: supported | needs_clarification | contradictory | out_of_scope
 
     Output STRICT JSON only matching this schema:
-    {"claims":[
-      {"claim_id":"C1","claim":"...","status":"supported",
-       "evidence":[{"segment_id":"S1","quote":"..."}],
-       "notes":"optional"}
-    ]}
+    {{"claims":[
+      {{"claim_id":"C1","claim":"...","status":"supported",
+       "evidence":[{{"segment_id":"S1","quote":"..."}}],
+       "notes":"optional"}}
+    ]}}
   expected_output: >
     A JSON object with an array "claims" as specified.
   agent: facts_extractor
@@ -37,7 +37,7 @@ clarification_questions_task:
     "needs_clarification" claims to "supported". If no questions needed, return an empty list.
 
     Output STRICT JSON only:
-    {"questions":[{"question_id":"Q1","question":"...","targets":["C3","C7"]}]}
+    {{"questions":[{{"question_id":"Q1","question":"...","targets":["C3","C7"]}}]}}
   expected_output: >
     A JSON object with "questions".
   agent: facts_extractor
@@ -51,9 +51,9 @@ draft_homepage_task:
     and rely on questions from the previous task.
 
     Output STRICT JSON only:
-    {"homepage_md":"<markdown>", "trace_map":[
-      {"sentence_id":"SENT1","sentence_text":"...","claim_ids":["C1","C2"]}
-    ]}
+    {{"homepage_md":"<markdown>", "trace_map":[
+      {{"sentence_id":"SENT1","sentence_text":"...","claim_ids":["C1","C2"]}}
+    ]}}
     Rules:
     - Every sentence in homepage_md must have at least one claim_id in trace_map.
     - Do not add any new facts not present in supported claims.
@@ -71,11 +71,11 @@ final_fact_qa_task:
     Keep the text concise and professional.
 
     Output STRICT JSON only:
-    {
+    {{
       "homepage_md":"<final markdown>",
-      "trace_map":[{"sentence_id":"SENT1","sentence_text":"...","claim_ids":["C1"]}],
-      "qa_report":{"issues":[{"issue_id":"I1","type":"ungrounded","sentence_id":"SENT3","detail":"..."}]}
-    }
+      "trace_map":[{{"sentence_id":"SENT1","sentence_text":"...","claim_ids":["C1"]}}],
+      "qa_report":{{"issues":[{{"issue_id":"I1","type":"ungrounded","sentence_id":"SENT3","detail":"..."}}]}}
+    }}
   expected_output: >
     A JSON object with final homepage_md, trace_map, and qa_report.
   agent: fact_qa
