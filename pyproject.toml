@@ -3,7 +3,7 @@ name = "portfolio-homepage"
 version = "0.1.0"
 requires-python = ">=3.10,<=3.13"
 dependencies = [
-  "crewai>=1.10.0",
+  "crewai>=1.9.0,<1.10.0",
   "pydantic>=2.0.0",
 ]
 
