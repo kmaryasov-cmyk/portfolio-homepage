@@ -1,0 +1,83 @@
+segment_source_task:
+  description: >
+    Segment the following source text into coherent segments (keep original wording; do not rewrite).
+    SOURCE_TEXT:
+    {source_text}
+
+    Output STRICT JSON only (no markdown, no comments) matching this schema:
+    {"segments":[{"segment_id":"S1","text":"...","lang":"ru|en|mix|other","flags":["ocr|broken|placeholder"]}]}
+  expected_output: >
+    A JSON object with an array "segments" as specified.
+  agent: facts_extractor
+  output_file: artifacts/segments.json
+  create_directory: true
+
+extract_claims_task:
+  description: >
+    Using the segmented text from previous step as your only source, extract atomic claims/facts.
+    Each claim MUST include at least one evidence quote copied verbatim from a segment.
+    Do NOT invent. If evidence is missing, set status="needs_clarification".
+    Allowed status values: supported | needs_clarification | contradictory | out_of_scope
+
+    Output STRICT JSON only matching this schema:
+    {"claims":[
+      {"claim_id":"C1","claim":"...","status":"supported",
+       "evidence":[{"segment_id":"S1","quote":"..."}],
+       "notes":"optional"}
+    ]}
+  expected_output: >
+    A JSON object with an array "claims" as specified.
+  agent: facts_extractor
+  output_file: artifacts/claims.json
+  create_directory: true
+
+clarification_questions_task:
+  description: >
+    From the claims list, generate up to 6 clarification questions that would allow upgrading
+    "needs_clarification" claims to "supported". If no questions needed, return an empty list.
+
+    Output STRICT JSON only:
+    {"questions":[{"question_id":"Q1","question":"...","targets":["C3","C7"]}]}
+  expected_output: >
+    A JSON object with "questions".
+  agent: facts_extractor
+  output_file: artifacts/questions.json
+  create_directory: true
+
+draft_homepage_task:
+  description: >
+    Write a Russian portfolio homepage text for a Lead Product Designer.
+    Use ONLY claims with status="supported". If there are zero supported claims, set homepage_md to ""
+    and rely on questions from the previous task.
+
+    Output STRICT JSON only:
+    {"homepage_md":"<markdown>", "trace_map":[
+      {"sentence_id":"SENT1","sentence_text":"...","claim_ids":["C1","C2"]}
+    ]}
+    Rules:
+    - Every sentence in homepage_md must have at least one claim_id in trace_map.
+    - Do not add any new facts not present in supported claims.
+  expected_output: >
+    A JSON object with homepage_md and trace_map.
+  agent: homepage_writer
+  output_file: artifacts/draft.json
+  create_directory: true
+
+final_fact_qa_task:
+  description: >
+    Validate the draft homepage. For each sentence, verify it is supported by the mapped claim_ids,
+    and those claims are supported and have evidence.
+    If a sentence is not grounded, remove or rewrite it WITHOUT introducing new facts.
+    Keep the text concise and professional.
+
+    Output STRICT JSON only:
+    {
+      "homepage_md":"<final markdown>",
+      "trace_map":[{"sentence_id":"SENT1","sentence_text":"...","claim_ids":["C1"]}],
+      "qa_report":{"issues":[{"issue_id":"I1","type":"ungrounded","sentence_id":"SENT3","detail":"..."}]}
+    }
+  expected_output: >
+    A JSON object with final homepage_md, trace_map, and qa_report.
+  agent: fact_qa
+  output_file: artifacts/final.json
+  create_directory: true

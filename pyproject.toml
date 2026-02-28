@@ -1,0 +1,21 @@
+[project]
+name = "portfolio-homepage"
+version = "0.1.0"
+requires-python = ">=3.10,<=3.13"
+dependencies = [
+  "crewai>=1.10.0",
+  "pydantic>=2.0.0",
+]
+
+[tool.crewai]
+type = "crew"
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
